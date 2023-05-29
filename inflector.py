@@ -38,7 +38,9 @@ for word in words:
         continue
     # print(f"debug inflections: {inflections}")
 
-    # Iterate in key, value pairs
+    buffer_words = []
+
+    # Iterate in key, value pairs for each lemma
     for tag, new_words in inflections.items():
         # new_words = tuple ('ACTED',)
         
@@ -48,10 +50,38 @@ for word in words:
             # Skip if proper noun
             if NO_PROPER_NOUN and new_word.istitle(): continue
 
-            inflected_words.append(new_word)
+            buffer_words.append(new_word)
+    
+    # Check if there are conflicting American and British spellings,
+    # and prefer the British spellings
+
+    american_british_suffixes = [
+        # (American, British)
+        ## Verbs
+        ("ling", "lling"),
+        ("led", "lled"),
+        ## Nouns
+        ("ler", "ller"),
+        ("lers", "llers"),
+    ]
+
+    ## Check for suffixes
+    for suffixes in american_british_suffixes:
+        for l_word_1 in buffer_words:
+            if l_word_1.endswith(suffixes[1]):
+                for l_word_2 in buffer_words:
+                    if l_word_2.endswith(suffixes[0]) \
+                        and not l_word_2.endswith(suffixes[1]):
+                        # Both -ling and -lling forms exist
+                        buffer_words.remove(l_word_2)
+
+    # Merge the lists
+    inflected_words += buffer_words
 
 # Get rid of duplicates
 inflected_words = list(set(inflected_words))
+
+input("Save to file? ")
 
 with open(output_name, "w", encoding="utf8") as f:
     for word in inflected_words:
