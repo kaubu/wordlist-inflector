@@ -15,6 +15,9 @@ from lemminflect import getAllInflections
 # }
 # type = <class 'dict'>
 
+NO_UPPERCASE = True # Will skip words fully in uppercase
+NO_PROPER_NOUN = True # Will skip words beginning with a capital letter
+
 words = []
 inflected_words = [] # Words + Inflections
 
@@ -40,6 +43,11 @@ for word in words:
         # new_words = tuple ('ACTED',)
         
         for new_word in new_words:
+            # Skip if uppercase
+            if NO_UPPERCASE and new_word.isupper(): continue
+            # Skip if proper noun
+            if NO_PROPER_NOUN and new_word.istitle(): continue
+
             inflected_words.append(new_word)
 
 # Get rid of duplicates
